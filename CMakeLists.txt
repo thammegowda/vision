@@ -159,6 +159,8 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/TorchVisionConfigVe
   VERSION ${TORCHVISION_VERSION}
   COMPATIBILITY AnyNewerVersion)
 
+# Only install when torchvision is the top-level project (not embedded via add_subdirectory)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/TorchVisionConfig.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/TorchVisionConfigVersion.cmake
   DESTINATION ${TORCHVISION_CMAKECONFIG_INSTALL_DIR})
@@ -177,3 +179,4 @@ FOREACH(INPUT_DIR ${ALLOW_LISTED})
     file(GLOB INPUT_FILES ${INPUT_DIR}/*.*)
     install(FILES ${INPUT_FILES} DESTINATION ${OUTPUT_DIR})
 ENDFOREACH()
+endif()
