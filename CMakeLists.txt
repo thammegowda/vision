@@ -26,6 +26,12 @@ endif()
 
 find_package(Torch REQUIRED)
 
+# Tahoma: build bundled static PIC image codecs from third_party/ submodules.
+# This sets PNG_LIBRARY, JPEG_LIBRARIES, ZLIB::ZLIB to static targets
+# before the find_package() calls below, so they pick up our builds.
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+include(${CMAKE_CURRENT_SOURCE_DIR}/third_party/static-deps.cmake OPTIONAL)
+
 if (WITH_PNG)
     add_definitions(-DPNG_FOUND)
     find_package(PNG REQUIRED)
@@ -96,7 +102,7 @@ FOREACH(DIR ${ALLOW_LISTED})
     file(GLOB ALL_SOURCES ${ALL_SOURCES} ${DIR}/*.*)
 ENDFOREACH()
 
-add_library(${PROJECT_NAME} SHARED ${ALL_SOURCES})
+add_library(${PROJECT_NAME} STATIC ${ALL_SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${TORCH_LIBRARIES})
 
 if(WITH_MPS)
