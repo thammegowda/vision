@@ -26,6 +26,12 @@ endif()
 
 find_package(Torch REQUIRED)
 
+# Tahoma: build bundled static PIC image codecs from third_party/ submodules.
+# This sets PNG_LIBRARY, JPEG_LIBRARIES, ZLIB::ZLIB to static targets
+# before the find_package() calls below, so they pick up our builds.
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+include(${CMAKE_CURRENT_SOURCE_DIR}/third_party/static-deps.cmake OPTIONAL)
+
 if (WITH_PNG)
     add_definitions(-DPNG_FOUND)
     find_package(PNG REQUIRED)
@@ -96,7 +102,7 @@ FOREACH(DIR ${ALLOW_LISTED})
     file(GLOB ALL_SOURCES ${ALL_SOURCES} ${DIR}/*.*)
 ENDFOREACH()
 
-add_library(${PROJECT_NAME} SHARED ${ALL_SOURCES})
+add_library(${PROJECT_NAME} STATIC ${ALL_SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${TORCH_LIBRARIES})
 
 if(WITH_MPS)
@@ -153,6 +159,8 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/TorchVisionConfigVe
   VERSION ${TORCHVISION_VERSION}
   COMPATIBILITY AnyNewerVersion)
 
+# Only install when torchvision is the top-level project (not embedded via add_subdirectory)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/TorchVisionConfig.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/TorchVisionConfigVersion.cmake
   DESTINATION ${TORCHVISION_CMAKECONFIG_INSTALL_DIR})
@@ -171,3 +179,4 @@ FOREACH(INPUT_DIR ${ALLOW_LISTED})
     file(GLOB INPUT_FILES ${INPUT_DIR}/*.*)
     install(FILES ${INPUT_FILES} DESTINATION ${OUTPUT_DIR})
 ENDFOREACH()
+endif()
